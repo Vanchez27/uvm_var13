@@ -49,34 +49,51 @@ class Assembler:
                     ir.append(cmd)
         return ir
 
+    def assemble_command(self, cmd: IRCommand) -> bytes:
+        a = self.OPCODE_MAP[cmd.opcode]
+        b = cmd.operand
+
+        value = a | (b << 7)
+
+        # Преобразование в 3 байта
+        return value.to_bytes(3, byteorder='little')
+
     def run(self):
-        parser = argparse.ArgumentParser(description="УВМ")
-        parser.add_argument("input_file", help="Путь к исходному файлу .asm")
-        parser.add_argument("output_file", help="Путь к двоичному файлу-результату .bin")
-        parser.add_argument("--log", action="store_true", help="Режим тестирования вывод лога")
+        parser = argparse.ArgumentParser(description="Учебный Ассемблер (УВМ) - Этап 2")
+        parser.add_argument("input_file", help="Путь к исходному файлу (.asm)")
+        parser.add_argument("output_file", help="Путь к двоичному файлу-результату (.bin)")
+        parser.add_argument("--log", action="store_true", help="Вывод лога (бинарный вид)")
 
         args = parser.parse_args()
 
         try:
             commands = self.parse_file(args.input_file)
+            binary_data = bytearray()
+            log_output = []
 
-            # 5 шаг
-            if args.log:
-                print("Log Mode (A=Opcode, B=Operand):")
-                for cmd in commands:
-                    a_val = self.OPCODE_MAP[cmd.opcode]
-                    b_val = cmd.operand
-                    print(f"A={a_val}, B={b_val}")
+            for cmd in commands:
+                machine_code = self.assemble_command(cmd)
+                binary_data.extend(machine_code)
 
+                # Формирование строки для лога
+                hex_str = ", ".join(f"0x{b:02X}" for b in machine_code)
+                log_output.append(f"{cmd.opcode} {cmd.operand}: \t{hex_str}")
+
+            # Запись в бинарный файл
             with open(args.output_file, "wb") as f:
-                pass  # Этапа 2 пока не реализован
+                f.write(binary_data)
 
-            print(f"Ассемблирование завершено. Обработано команд: {len(commands)}")
+            print(f"Размер выходного файла: {len(binary_data)} байт")
+
+            # Вывод лога
+            if args.log:
+                print("\nLog Mode (Hex Dump):")
+                for line in log_output:
+                    print(line)
 
         except Exception as e:
             print(f"Ошибка: {e}", file=sys.stderr)
             sys.exit(1)
-
 
 if __name__ == "__main__":
     app = Assembler()
