@@ -87,7 +87,23 @@ class VirtualMachine:
 
             # POPCNT (Этап 4 - пока пропуск)
             elif opcode == 14:
-                pass
+                if len(self.stack) < 1:
+                    raise IndexError("POPCNT: Пустой стек (нужен Базовый адрес)")
+
+                base_addr = self.stack.pop()
+                target_addr = base_addr + operand  # Адрес = TOS + B
+
+                if 0 <= target_addr < len(self.memory):
+                    value = self.memory[target_addr]
+
+                    # Считаем количество единиц в двоичном представлении числа
+                    # bin(5) -> '0b101' -> count('1') -> 2
+                    res = bin(value).count('1')
+
+                    self.stack.append(res)
+                else:
+                    raise IndexError(f"POPCNT: Адрес {target_addr} выходит за границы")
+
             else:
                 print(f"Неизвестная команда: A={opcode} на адресе {self.pc - 3}")
                 break
