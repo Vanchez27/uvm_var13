@@ -53,6 +53,7 @@ class Assembler:
         a = self.OPCODE_MAP[cmd.opcode]
         b = cmd.operand
 
+        # Формула упаковки битов
         value = a | (b << 7)
 
         # Преобразование в 3 байта

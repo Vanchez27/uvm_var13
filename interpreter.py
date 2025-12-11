@@ -8,7 +8,7 @@ class VirtualMachine:
         # Память команд и данных объединена (Требование 3)
         self.memory = [0] * memory_size
         self.stack = []
-        self.pc = 0  # Program Counter
+        self.pc = 0  # Program Counter указывает на каком байте находимся
 
     def load_program(self, binary_path):
         #Загрузка бинарного файла в начало памяти
@@ -96,7 +96,7 @@ class VirtualMachine:
                 if 0 <= target_addr < len(self.memory):
                     value = self.memory[target_addr]
 
-                    # Считаем количество единиц в двоичном представлении числа
+                    # Считает количество единиц в двоичном представлении числа
                     # bin(5) -> '0b101' -> count('1') -> 2
                     res = bin(value).count('1')
 
@@ -131,7 +131,7 @@ def main():
     except Exception as e:
         print(f"Ошибка выполнения: {e}")
 
-    # Сохраняем дамп в любом случае
+    # Сохраняет дамп в любом случае
     vm.dump_memory(args.dump_file, start, end)
 
 
